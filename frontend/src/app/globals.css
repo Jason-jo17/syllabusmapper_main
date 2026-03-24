@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #f8fafc;
+    --bg1: #ffffff;
+    --bg2: #f1f5f9;
+    --bg3: #e2e8f0;
+    --bg4: #cbd5e1;
+    --bd: #e2e8f0;
+    --bd2: #cbd5e1;
+    --bd3: #94a3b8;
+    --tx: #0f172a;
+    --tx2: #475569;
+    --tx3: #64748b;
+    --tx4: #94a3b8;
+    --acc: #4f46e5;
+    --acc2: #6366f1;
+    --acc3: #818cf8;
+    --glow: rgba(99,102,241,.12);
+    
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --bg: #09090f;
+    --bg1: #0f1017;
+    --bg2: #14172a;
+    --bg3: #1a1d32;
+    --bg4: #20243c;
+    --bd: #232640;
+    --bd2: #2c3158;
+    --bd3: #3a4070;
+    --tx: #e2e6f8;
+    --tx2: #8b93b8;
+    --tx3: #454e72;
+    --tx4: #2d3255;
+    --acc: #6366f1;
+    --acc2: #818cf8;
+    --acc3: #a5b4fc;
+    --glow: rgba(99,102,241,.22);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--bd);
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--tx);
+    @apply text-[13px] antialiased;
+  }
+}
+
+/* Custom Scrollbar to match Prototype */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bd2);
+  border-radius: 4px;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

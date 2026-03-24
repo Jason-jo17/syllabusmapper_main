@@ -1,0 +1,31 @@
+VTU_COURSE_NAMES = {
+    '21EC71': 'Microwave and Antennas',
+    '21EC721': 'Information Theory and Coding',
+    '21EC722': 'Computer Networks',
+    '21EC723': 'Embedded Systems',
+    '21EC724': 'Microwave Theory and Techniques',
+    '21EC725': 'VLSI Design',
+    '21EC731': 'Satellite Communication',
+    '21EC732': 'Mobile Communication',
+    '21EC733': 'Multimedia Communication',
+    '21EC734': 'Real Time Systems',
+    '21EC741': 'Machine Learning',
+    '21EC742': 'Digital Image Processing',
+    '21EC743': 'Internet of Things',
+    '21EC744': 'Database Management System',
+    '21EC745': 'Advanced Microprocessors',
+    '21EC751': 'Optical and Wireless Communication',
+    '21EC752': 'CMOS VLSI Design',
+    '21EC753': 'Digital Signal Processing',
+    '21EL15': 'Basic Electrical Engineering',
+    '21CH11': 'Engineering Chemistry',
+    '21MA11': 'Calculus and Linear Algebra',
+    '21ME15': 'Elements of Mechanical Engineering',
+    '21EC42': 'Signals and Systems',
+    '21EC43': 'Control Systems',
+    '21EC44': 'Engineering Statistics and Linear Algebra',
+    '21EC45': 'Digital System Design using Verilog',
+}
+
+def get_course_title(code):
+    return VTU_COURSE_NAMES.get(str(code).strip(), None)

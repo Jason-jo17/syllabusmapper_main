@@ -1,0 +1,48 @@
+{
+  "co_cols": [
+    "year ",
+    "stream",
+    "sem",
+    "Course code ",
+    "Course",
+    "CO",
+    "CO Description",
+    "yr+stream+ course",
+    "course+co+ code"
+  ],
+  "co_row0": {
+    "year ": "4th",
+    "stream": "ECE",
+    "sem": "7th",
+    "Course code ": "21EC751",
+    "Course": "\nOptical & Satellite Communication\n",
+    "CO": "CO1",
+    "CO Description": "Describe the satellite orbits and its trajectories with the definitions of parameters associated with it.",
+    "yr+stream+ course": "4th 7th 21EC751 \nOptical & Satellite Communication\n",
+    "course+co+ code": "\nOptical & Satellite Communication\n-CO1[Describe the satellite orbits and its trajectories with the definitions of parameters associated with it.](21EC751)"
+  },
+  "skill_cols": [
+    "common tag ( try to make this based on subject)",
+    "Domain",
+    "knowlegde set",
+    "skill knowledge",
+    "engineering programs ",
+    "subject and co to map ",
+    "Unnamed: 6",
+    "Unnamed: 7",
+    "Unnamed: 8",
+    "Unnamed: 9"
+  ],
+  "skill_row0": {
+    "common tag ( try to make this based on subject)": NaN,
+    "Domain": NaN,
+    "knowlegde set": NaN,
+    "skill knowledge": NaN,
+    "engineering programs ": NaN,
+    "subject and co to map ": NaN,
+    "Unnamed: 6": NaN,
+    "Unnamed: 7": NaN,
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN
+  }
+}

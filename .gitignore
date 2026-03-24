@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.next/
+.env*
+*.log
+*.txt
+tsconfig.tsbuildinfo
+build_log*.txt
+
+# Python
+venv/
+.env
+__pycache__/
+*.log
+*.txt
+db_state.json
+
+# OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
