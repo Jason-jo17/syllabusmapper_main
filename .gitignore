@@ -2,9 +2,6 @@
 node_modules/
 .next/
 .env*
-*.log
-*.txt
-!requirements.txt
 tsconfig.tsbuildinfo
 build_log*.txt
 
@@ -12,9 +9,12 @@ build_log*.txt
 venv/
 .env
 __pycache__/
+db_state.json
+
+# Logs & Temp
 *.log
 *.txt
-db_state.json
+!requirements.txt
 
 # OS
 .DS_Store
