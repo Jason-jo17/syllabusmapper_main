@@ -31,7 +31,7 @@ export function CurriculumGrid() {
       .then(r => r.json())
       .then(data => setAllEvents(data || []))
       .catch(err => console.error("Failed to fetch events:", err));
-  }, []);
+  }, [searchParams]);
 
   // Fetch details (COs and Skills) when a course is selected
   useEffect(() => {

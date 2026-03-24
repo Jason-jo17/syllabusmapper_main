@@ -54,18 +54,35 @@ export function EventAssessment() {
     async function fetchData() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const [evRes, assRes, savedAssRes] = await Promise.all([
-          fetch(`${apiUrl}/api/events/${eventId}`),
-          fetch(`${apiUrl}/api/assessments`),
-          fetch(`${apiUrl}/api/assignments/${eventId}`)
+        
+        // 1. Fetch event first to know which skills to fetch assessments for
+        const evRes = await fetch(`${apiUrl}/api/events/${eventId}`);
+        const ev = await evRes.json();
+        setEventData(ev);
+
+        // 2. Fetch assessments for each skill in parallel
+        const skillNames = ev.skills_addressed?.map((s: SkillAddressed) => s.skill_knowledge) || [];
+        const uniqueSkills = Array.from(new Set(skillNames)) as string[];
+        
+        const [assResults, savedAss] = await Promise.all([
+          Promise.all(uniqueSkills.map(s => 
+            fetch(`${apiUrl}/api/assessments?skill=${encodeURIComponent(s)}`).then(r => r.json())
+          )),
+          fetch(`${apiUrl}/api/assignments/${eventId}`).then(r => r.json())
         ]);
         
-        const ev = await evRes.json();
-        const ass = await assRes.json();
-        const savedAss = await savedAssRes.json() as SavedAssignment & { error?: string };
+        // Flatten and deduplicate assessments
+        const allAss = assResults.flat();
+        const seen = new Set();
+        const dedupedAss = allAss.filter((a: Assessment) => {
+          const key = `${a.s}-${a.bl}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+        setAssessments(dedupedAss);
         
-        setEventData(ev);
-        setAssessments(ass);
         if (savedAss && Object.keys(savedAss).length > 0 && !savedAss.error) {
             setSelection(savedAss);
         }

@@ -1,11 +1,17 @@
+import os
 import pandas as pd
 import math
+import json
 from fastapi import APIRouter
 from typing import List, Dict, Any
 
 router = APIRouter()
 
-CSV_PATH = r"D:\Event Mastersheet mockup - Copy of tester 2 (2).csv"
+# Locate the CSV relative to this file's directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CSV_PATH = os.path.join(BASE_DIR, "data", "Event Mastersheet mockup - Domain, skillset L C (9).csv")
+ASSESSMENTS_PATH = os.path.join(BASE_DIR, "data", "assessments.json")
+ASSIGNMENTS_PATH = os.path.join(BASE_DIR, "data", "assignments.json")
 
 def sanitize_value(val: Any) -> Any:
     if pd.isna(val) or (isinstance(val, float) and math.isnan(val)):
@@ -15,6 +21,10 @@ def sanitize_value(val: Any) -> Any:
 @router.get("/")
 async def get_all_events():
     try:
+        if not os.path.exists(CSV_PATH):
+            print(f"CSV not found at {CSV_PATH}")
+            return []
+            
         df = pd.read_csv(CSV_PATH)
         events = []
         for i, row in df.iterrows():
@@ -72,6 +82,17 @@ async def get_events_by_domain(domain: str):
         or domain in str(e.get("knowledge_domain_3", "")).lower()
     ]
 
+@router.get("/assessments")
+async def get_assessments(skill: str = None):
+    if not os.path.exists(ASSESSMENTS_PATH):
+        return []
+    with open(ASSESSMENTS_PATH, 'r') as f:
+        data = json.load(f)
+        if skill:
+            skill = skill.lower()
+            return [a for a in data if skill in a.get("s", "").lower()]
+        return data
+
 @router.get("/{event_id}")
 async def get_event(event_id: str):
     all_events = await get_all_events()
@@ -80,3 +101,31 @@ async def get_event(event_id: str):
             return e
     return {"error": "Event not found"}
 
+@router.get("/assignments/{event_id}")
+async def get_assignment(event_id: str):
+    if not os.path.exists(ASSIGNMENTS_PATH):
+        return {}
+    if os.path.getsize(ASSIGNMENTS_PATH) == 0:
+        return {}
+        
+    with open(ASSIGNMENTS_PATH, 'r') as f:
+        try:
+            data = json.load(f)
+            return data.get(event_id, {})
+        except:
+            return {}
+
+@router.post("/assignments/{event_id}")
+async def save_assignment(event_id: str, payload: Dict[str, Any]):
+    data = {}
+    if os.path.exists(ASSIGNMENTS_PATH) and os.path.getsize(ASSIGNMENTS_PATH) > 0:
+        with open(ASSIGNMENTS_PATH, 'r') as f:
+            try:
+                data = json.load(f)
+            except:
+                data = {}
+    
+    data[event_id] = payload
+    with open(ASSIGNMENTS_PATH, 'w') as f:
+        json.dump(data, f)
+    return {"status": "success"}

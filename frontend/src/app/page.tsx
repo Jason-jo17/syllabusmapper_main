@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { 
   GraduationCap, 
   LayoutGrid, 
-  Map as MapIcon, 
   Calendar, 
   AlertTriangle, 
   ArrowRight,
@@ -15,7 +14,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     courses: 48,
     skills: 1240,
     events: 24,
@@ -94,8 +93,8 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }: any) {
-  const colorMap: any = {
+function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType, label: string, value: number, color: string }) {
+  const colorMap: Record<string, string> = {
     blue: "text-blue-400 bg-blue-400/10 border-blue-400/20",
     green: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
     purple: "text-purple-400 bg-purple-400/10 border-purple-400/20",
@@ -116,7 +115,7 @@ function StatCard({ icon: Icon, label, value, color }: any) {
   );
 }
 
-function ModuleCard({ href, icon: Icon, title, description }: any) {
+function ModuleCard({ href, icon: Icon, title, description }: { href: string, icon: React.ElementType, title: string, description: string }) {
   return (
     <Link href={href} className="group">
       <div className="h-full bg-[#1a1d32] border border-[#232640] p-6 rounded-2xl shadow-lg transition-all group-hover:border-[var(--acc)] group-hover:bg-[#1e223a]">
