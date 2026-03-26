@@ -23,6 +23,10 @@ CREATE TABLE IF NOT EXISTS events (
 -- Enable RLS
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
+-- Clean up existing policies to avoid name conflicts
+DROP POLICY IF EXISTS "Allow public read-only access" ON events;
+DROP POLICY IF EXISTS "Allow authenticated full access" ON events;
+
 -- Policies
 CREATE POLICY "Allow public read-only access" ON events FOR SELECT USING (true);
 
