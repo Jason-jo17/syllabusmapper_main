@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
+import { API_URL } from "@/lib/config";
 
 export function ManualEntryForm({ onComplete }: { onComplete: (co_id: string) => void }) {
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +26,7 @@ export function ManualEntryForm({ onComplete }: { onComplete: (co_id: string) =>
     setSubmitting(true);
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/ingest/manual`, {
+      const res = await fetch(`${API_URL}/api/ingest/manual`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

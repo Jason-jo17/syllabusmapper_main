@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 import type { Event } from "@/lib/types";
+import { API_URL } from "@/lib/config";
 
 export function EventsBrowser() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -15,8 +16,7 @@ export function EventsBrowser() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUrl}/api/events`);
+        const res = await fetch(`${API_URL}/api/events`);
         const data = await res.json();
         setEvents(data);
       } catch (e) {

@@ -22,7 +22,10 @@ app = FastAPI()
 print("App created.")
 
 print("Adding middleware...")
-cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+cors_origins = os.environ.get(
+    "CORS_ALLOWED_ORIGINS", 
+    "http://localhost:3000,http://127.0.0.1:3000,https://syllabusmapper-main.vercel.app,https://syllabusmappermain-production.up.railway.app"
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,

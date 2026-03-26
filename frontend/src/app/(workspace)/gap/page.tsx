@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { GapItem } from "@/components/gap/GapItem";
 import { SemesterRecommendations } from "@/components/gap/SemesterRecommendations";
 import type { SkillNode } from "@/lib/types";
+import { API_URL } from "@/lib/config";
 
 interface GapReport {
   gaps: SkillNode[];
@@ -22,16 +23,15 @@ export default function GapAnalysisPage() {
   useEffect(() => {
     const syllabusId = "ece00000-0000-0000-0000-000000000000";
     
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     // 1. Get Job Role (Defaulting to the one we synced)
-    fetch(`${apiUrl}/api/colleges/roles`) // Assuming this lists roles
+    fetch(`${API_URL}/api/colleges/roles`) // Assuming this lists roles
       .then(r => r.json())
       .then((roles: JobRole[]) => {
         const role = roles.find(r => r.role_name === "Embedded Electronics Engineer");
         if (!role) return;
 
         // 2. Trigger Analysis
-        fetch(`${apiUrl}/api/gap/analyse`, {
+        fetch(`${API_URL}/api/gap/analyse`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ syllabus_id: syllabusId, job_role_id: role.id })

@@ -2,6 +2,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Link2, Loader2, Download } from 'lucide-react';
+import { API_URL } from '@/lib/config';
 
 export function DropZone({ onUploadComplete, mode = "pdf" }: { onUploadComplete: (id: string)=>void, mode?: "pdf" | "csv" }) {
   const [url, setUrl] = useState("");
@@ -19,7 +20,7 @@ export function DropZone({ onUploadComplete, mode = "pdf" }: { onUploadComplete:
       const formData = new FormData();
       formData.append("file", file);
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${endpoint}`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
         body: formData,
       });

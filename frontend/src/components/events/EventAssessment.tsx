@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { API_URL } from "@/lib/config";
 
 interface SkillAddressed {
   knowledge_set: string;
@@ -53,10 +54,9 @@ export function EventAssessment() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         
         // 1. Fetch event first to know which skills to fetch assessments for
-        const evRes = await fetch(`${apiUrl}/api/events/${eventId}`);
+        const evRes = await fetch(`${API_URL}/api/events/${eventId}`);
         const ev = await evRes.json();
         setEventData(ev);
 
@@ -66,9 +66,9 @@ export function EventAssessment() {
         
         const [assResults, savedAss] = await Promise.all([
           Promise.all(uniqueSkills.map(s => 
-            fetch(`${apiUrl}/api/assessments?skill=${encodeURIComponent(s)}`).then(r => r.json())
+            fetch(`${API_URL}/api/assessments?skill=${encodeURIComponent(s)}`).then(r => r.json())
           )),
-          fetch(`${apiUrl}/api/assignments/${eventId}`).then(r => r.json())
+          fetch(`${API_URL}/api/assignments/${eventId}`).then(r => r.json())
         ]);
         
         // Flatten and deduplicate assessments
@@ -98,8 +98,7 @@ export function EventAssessment() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      await fetch(`${apiUrl}/api/assignments/${eventId}`, {
+      await fetch(`${API_URL}/api/assignments/${eventId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selection),

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { LevelGroup } from "./LevelGroup";
 import type { SkillNode, Event } from "@/lib/types";
 import { Search } from "lucide-react";
+import { API_URL } from "@/lib/config";
 
 export function SkillsMap({ role }: { role: string }) {
   const [skills, setSkills] = useState<SkillNode[]>([]);
@@ -13,8 +14,7 @@ export function SkillsMap({ role }: { role: string }) {
 
   useEffect(() => {
     setLoading(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    fetch(`${apiUrl}/api/skills/?role=${role}`)
+    fetch(`${API_URL}/api/skills/?role=${role}`)
       .then(r => r.json())
       .then(data => {
         setSkills(data || []);
@@ -22,7 +22,7 @@ export function SkillsMap({ role }: { role: string }) {
       })
       .catch(() => setLoading(false));
 
-    fetch(`${apiUrl}/api/events/`)
+    fetch(`${API_URL}/api/events/`)
       .then(r => r.json())
       .then(data => setAllEvents(data || []))
       .catch(err => console.error(err));
