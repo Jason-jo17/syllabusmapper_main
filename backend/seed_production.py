@@ -27,7 +27,7 @@ async def run_seeders():
     try:
         from data.seed_l0l5 import seed as seed_skills
         from data.seed_ece_curriculum import seed_ece_curriculum
-        from data.seed_domain_mockup import seed_domains
+        from data.seed_domain_mockup import seed_domain_mockup as seed_domains
     except ImportError as e:
         print(f"ERROR: Could not import seeding scripts: {e}")
         return
