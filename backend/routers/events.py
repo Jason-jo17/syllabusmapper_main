@@ -9,9 +9,28 @@ router = APIRouter()
 
 # Locate the CSV relative to this file's directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSV_PATH = os.path.join(BASE_DIR, "data", "Event Mastersheet mockup - Domain, skillset L C (9).csv")
-ASSESSMENTS_PATH = os.path.join(BASE_DIR, "data", "assessments.json")
-ASSIGNMENTS_PATH = os.path.join(BASE_DIR, "data", "assignments.json")
+# Try multiple possible locations for the data folder
+DATA_DIRS = [
+    os.path.join(BASE_DIR, "data"),
+    os.path.join(os.path.dirname(BASE_DIR), "data"), # Project root/data
+    "/app/backend/data", # Railway specific
+    "/app/data"          # Railway specific
+]
+
+def find_file(filename):
+    for d in DATA_DIRS:
+        p = os.path.join(d, filename)
+        if os.path.exists(p):
+            return p
+    return None
+
+CSV_FILENAME = "Event Mastersheet mockup - Domain, skillset L C (9).csv"
+ASSESSMENTS_FILENAME = "assessments.json"
+ASSIGNMENTS_FILENAME = "assignments.json"
+
+CSV_PATH = find_file(CSV_FILENAME)
+ASSESSMENTS_PATH = find_file(ASSESSMENTS_FILENAME)
+ASSIGNMENTS_PATH = find_file(ASSIGNMENTS_FILENAME)
 
 def sanitize_value(val: Any) -> Any:
     if pd.isna(val) or (isinstance(val, float) and math.isnan(val)):
@@ -21,8 +40,8 @@ def sanitize_value(val: Any) -> Any:
 @router.get("/")
 async def get_all_events():
     try:
-        if not os.path.exists(CSV_PATH):
-            print(f"CSV not found at {CSV_PATH}")
+        if not CSV_PATH:
+            print(f"Events CSV not found in any of: {DATA_DIRS}")
             return []
             
         df = pd.read_csv(CSV_PATH)
@@ -84,10 +103,14 @@ async def get_events_by_domain(domain: str):
 
 @router.get("/assessments")
 async def get_assessments(skill: str = None):
-    if not os.path.exists(ASSESSMENTS_PATH):
+    if not ASSESSMENTS_PATH:
+        print("Assessments JSON not found")
         return []
     with open(ASSESSMENTS_PATH, 'r') as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except:
+            return []
         if skill:
             skill = skill.lower()
             return [a for a in data if skill in a.get("s", "").lower()]
@@ -103,7 +126,7 @@ async def get_event(event_id: str):
 
 @router.get("/assignments/{event_id}")
 async def get_assignment(event_id: str):
-    if not os.path.exists(ASSIGNMENTS_PATH):
+    if not ASSIGNMENTS_PATH or not os.path.exists(ASSIGNMENTS_PATH):
         return {}
     if os.path.getsize(ASSIGNMENTS_PATH) == 0:
         return {}

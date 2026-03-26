@@ -29,19 +29,26 @@ async def get_syllabus_courses(id: str):
     
     h = {"apikey": sk, "Authorization": f"Bearer {sk}", "Content-Type": "application/json"}
     try:
-        # Fetch courses
-        r = httpx.get(url=f"{su}/rest/v1/courses?syllabus_id=eq.{id}&select=*", headers=h, timeout=10.0)
-        if r.status_code != 200: return []
+        # 1. Fetch courses
+        print(f"Fetching courses for syllabus {id}...")
+        r = httpx.get(url=f"{su}/rest/v1/courses?syllabus_id=eq.{id}&select=*", headers=h, timeout=15.0)
+        if r.status_code != 200: 
+            print(f"Courses fetch failed: {r.status_code}")
+            return []
         courses = r.json()
-        if not courses: return []
+        if not courses: 
+            print("No courses found for syllabus.")
+            return []
         
-        # 1. Fetch CO counts globally
+        # 2. Fetch CO counts globally (batch)
         cids = ",".join([f'"{c["id"]}"' for c in courses])
-        r_cos = httpx.get(url=f"{su}/rest/v1/course_outcomes?course_id=in.({cids})&select=course_id", headers=h, timeout=10.0)
+        print(f"Fetching CO counts for {len(courses)} courses...")
+        r_cos = httpx.get(url=f"{su}/rest/v1/course_outcomes?course_id=in.({cids})&select=course_id", headers=h, timeout=15.0)
         cos = r_cos.json() if r_cos.status_code == 200 else []
         
-        # 2. Fetch Mapping counts
-        r_maps = httpx.get(url=f"{su}/rest/v1/co_skill_mappings?syllabus_id=eq.{id}&select=course_id", headers=h, timeout=10.0)
+        # 3. Fetch Mapping counts
+        print("Fetching skill mappings...")
+        r_maps = httpx.get(url=f"{su}/rest/v1/co_skill_mappings?syllabus_id=eq.{id}&select=course_id", headers=h, timeout=15.0)
         maps = r_maps.json() if r_maps.status_code == 200 else []
         
         from vtu_data import get_course_title
@@ -53,7 +60,9 @@ async def get_syllabus_courses(id: str):
             c["co_count"] = len([x for x in cos if x.get('course_id') == c['id']])
             c["skill_count"] = len([x for x in maps if x.get('course_id') == c['id']])
             
+        print("Successfully compiled course list.")
         return sorted(courses, key=lambda x: x.get("course_code", ""))
     except Exception as e:
         print(f"Error fetching syllabus courses: {e}")
+        traceback.print_exc()
     return []
