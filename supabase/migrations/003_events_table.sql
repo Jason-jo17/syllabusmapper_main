@@ -20,6 +20,13 @@ CREATE TABLE IF NOT EXISTS events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable RLS (Optional, but good practice)
+-- Enable RLS
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+
+-- Policies
 CREATE POLICY "Allow public read-only access" ON events FOR SELECT USING (true);
+
+-- Allow service role (and authenticated users seeding via service role key) to manage data
+CREATE POLICY "Allow authenticated full access" ON events FOR ALL 
+USING (auth.role() = 'service_role') 
+WITH CHECK (auth.role() = 'service_role');
