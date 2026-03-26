@@ -1,5 +1,11 @@
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || "https://syllabusmappermain-production.up.railway.app";
-// Force https unless it's localhost or already specified with http (but we prefer https for production)
-export const API_URL = (rawUrl.includes('localhost') || rawUrl.includes('127.0.0.1')) 
-  ? (rawUrl.startsWith('http') ? rawUrl : `http://${rawUrl}`)
-  : (rawUrl.startsWith('https') ? rawUrl : (rawUrl.startsWith('http') ? rawUrl.replace('http://', 'https://') : `https://${rawUrl}`));
+// In production, we must use HTTPS to avoid Mixed Content errors.
+// Also ensure no trailing slash in the base URL to prevent double slashes in fetch calls.
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+let sanitizedUrl = rawUrl.trim();
+if (sanitizedUrl.endsWith('/')) {
+  sanitizedUrl = sanitizedUrl.slice(0, -1);
+}
+
+export const API_URL = (sanitizedUrl.includes('localhost') || sanitizedUrl.includes('127.0.0.1')) 
+  ? (sanitizedUrl.startsWith('http') ? sanitizedUrl : `http://${sanitizedUrl}`)
+  : (sanitizedUrl.startsWith('https') ? sanitizedUrl : (sanitizedUrl.startsWith('http') ? sanitizedUrl.replace('http://', 'https://') : `https://${sanitizedUrl}`));

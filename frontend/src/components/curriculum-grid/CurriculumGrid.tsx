@@ -20,14 +20,14 @@ export function CurriculumGrid() {
   useEffect(() => {
     const syllabusId = searchParams.get('syl') || "ece00000-0000-0000-0000-000000000000";
     
-    fetch(`${API_URL}/api/syllabi/${syllabusId}/courses/`)
+    fetch(`${API_URL}/api/syllabi/${syllabusId}/courses`)
       .then(r => r.json())
       .then(data => {
         setCourses(data || []);
       })
       .catch(err => console.error("Failed to fetch courses:", err));
 
-    fetch(`${API_URL}/api/events/`)
+    fetch(`${API_URL}/api/events`)
       .then(r => r.json())
       .then(data => setAllEvents(data || []))
       .catch(err => console.error("Failed to fetch events:", err));
@@ -38,14 +38,14 @@ export function CurriculumGrid() {
     if (!selectedCourse) return;
     
     // Fetch COs
-    fetch(`${API_URL}/api/courses/${selectedCourse.id}/cos/`)
+    fetch(`${API_URL}/api/courses/${selectedCourse.id}/cos`)
       .then(r => r.json())
       .then(data => {
         setCosMap(prev => ({ ...prev, [selectedCourse.id]: data }));
       });
 
     // Fetch Skills
-    fetch(`${API_URL}/api/courses/${selectedCourse.id}/skills/`)
+    fetch(`${API_URL}/api/courses/${selectedCourse.id}/skills`)
       .then(r => r.json())
       .then(data => {
         setSkillsMap(prev => ({ ...prev, [selectedCourse.id]: data }));
