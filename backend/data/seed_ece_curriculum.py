@@ -46,14 +46,26 @@ async def seed_ece_curriculum():
             
             code = row.get('Course code')
             name = row.get('Course')
+            yr_str = row.get('year', '').lower()
+            sem_str = row.get('sem', '').lower()
             if not code or not name: continue
+            
+            # Robust extraction (e.g. "4th year" -> 4, "7th sem" -> 7)
+            import re
+            year = 2
+            match_yr = re.search(r'(\d+)', yr_str)
+            if match_yr: year = int(match_yr.group(1))
+            
+            sem = 3
+            match_sem = re.search(r'(\d+)', sem_str)
+            if match_sem: sem = int(match_sem.group(1))
             
             if code not in courses_map:
                 courses_map[code] = {
                     'id': str(uuid.uuid4()),
                     'syllabus_id': syl_id, 'college_id': col_id,
                     'course_code': code, 'course_title': name,
-                    'semester': 3, 'credits': 4 # Dummy defaults
+                    'year_of_study': year, 'semester': sem, 'credits': 4
                 }
             all_rows.append(row)
 
@@ -98,7 +110,7 @@ async def seed_ece_curriculum():
     for i in range(0, len(co_inserts), 50):
         sb.table('course_outcomes').insert(co_inserts[i:i+50]).execute()
 
-    print("Mapping Course Outcomes to Skills...")
+    print(f"Mapping Course Outcomes to Skills (with throttling)...")
     mapping_inserts = []
     for co in co_inserts:
         course_name = courses_map[next(k for k,v in courses_map.items() if v['id'] == co['course_id'])]['course_title'].lower()
@@ -107,20 +119,24 @@ async def seed_ece_curriculum():
         is_general = any(kw in course_name for kw in ['biology', 'social', 'management', 'uhv', 'english', 'kannada', 'connect', 'universal'])
         target_domain = None if is_general else 'Embedded systems'
         
-        if is_general: print(f"  - Contextual match for: {course_name}")
-        
-        res = sb.rpc('match_skill_nodes', {
-            'query_embedding': co['embedding'],
-            'match_threshold': 0.45 if is_general else 0.5,
-            'match_count': 3,
-            'filter_domain': target_domain
-        }).execute()
-        
-        for m in res.data:
-            mapping_inserts.append({
-                'syllabus_id': syl_id, 'course_id': co['course_id'], 'co_id': co['id'],
-                'skill_node_id': m['id'], 'similarity_score': m['similarity'], 'match_type': 'vector_match'
-            })
+        try:
+            res = sb.rpc('match_skill_nodes', {
+                'query_embedding': co['embedding'],
+                'match_threshold': 0.45 if is_general else 0.5,
+                'match_count': 3,
+                'filter_domain': target_domain
+            }).execute()
+            
+            for m in res.data:
+                mapping_inserts.append({
+                    'syllabus_id': syl_id, 'course_id': co['course_id'], 'co_id': co['id'],
+                    'skill_node_id': m['id'], 'similarity_score': m['similarity'], 'match_type': 'vector_match'
+                })
+        except Exception as e:
+            print(f"  - WARNING: Failed to map CO {co['co_code']} for {course_name}: {e}")
+            
+        # Throttling to prevent XX000 internal server error
+        await asyncio.sleep(0.05)
 
     print(f"Inserting {len(mapping_inserts)} mappings...")
     for i in range(0, len(mapping_inserts), 50):
