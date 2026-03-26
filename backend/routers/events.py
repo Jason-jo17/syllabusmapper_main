@@ -47,22 +47,72 @@ async def get_events_by_domain(domain: str):
 
 @router.get("/assessments")
 async def get_assessments(skill: str = None):
-    # Assessments might still be in a JSON file if not yet migrated to DB
-    # We can keep the file logic for now as a fallback
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    ASSESSMENTS_PATH = os.path.join(BASE_DIR, "data", "assessments.json")
-    if not os.path.exists(ASSESSMENTS_PATH):
+    if not su or not sk:
         return []
-    with open(ASSESSMENTS_PATH, 'r') as f:
-        try:
-            import json
-            data = json.load(f)
+        
+    h = {"apikey": sk, "Authorization": f"Bearer {sk}"}
+    try:
+        async with httpx.AsyncClient() as client:
+            # 1. Query skill_assessments table
+            url = f"{su}/rest/v1/skill_assessments?select=*"
             if skill:
-                skill = skill.lower()
-                return [a for a in data if skill in a.get("s", "").lower()]
-            return data
-        except:
+                # Search in both skill_knowledge and knowledge_set
+                url += f"&or=(skill_knowledge.ilike.*{skill}*,knowledge_set.ilike.*{skill}*)"
+            
+            r = await client.get(url, headers=h, timeout=10.0)
+            if r.status_code == 200:
+                data = r.json()
+                transformed = []
+                for a in data:
+                    # Map to frontend expectations
+                    # s: skill, ks: knowledge set, d: description, bl: bloom level
+                    res = {
+                        "s": a.get("skill_knowledge"),
+                        "ks": a.get("knowledge_set"),
+                        "d": a.get("domain"),
+                        "bl": 3, # Fallback bl
+                        "bln": "Applying",
+                        "mq": [m.get("question") for m in a.get("mcqs", [])],
+                        "sq": [s.get("question") for s in a.get("subjective_tasks", [])],
+                        "sh": [s.get("hint") for s in a.get("subjective_tasks", [])],
+                        "rub": []
+                    }
+                    
+                    # Transform Rubrics (3-point to 5-point mapping)
+                    for s_task in a.get("subjective_tasks", []):
+                        rubric_set = []
+                        for r_item in s_task.get("rubrics", []):
+                            rubric_set.append({
+                                "el": r_item.get("element"),
+                                "desc": r_item.get("description"),
+                                "s5": r_item.get("score5_expert"),
+                                "s4": "-",
+                                "s3": r_item.get("score3_proficient"),
+                                "s2": "-",
+                                "s1": r_item.get("score1_emerging")
+                            })
+                        if rubric_set:
+                            res["rub"].append(rubric_set)
+                    
+                    transformed.append(res)
+                
+                # If no DB results, fallback to file (temporary)
+                if not transformed:
+                    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    ASSESSMENTS_PATH = os.path.join(BASE_DIR, "data", "assessments.json")
+                    if os.path.exists(ASSESSMENTS_PATH):
+                        with open(ASSESSMENTS_PATH, 'r') as f:
+                            import json
+                            data = json.load(f)
+                            if skill:
+                                skill = skill.lower()
+                                return [a for a in data if skill in str(a.get("s", "")).lower()]
+                            return data
+                return transformed
             return []
+    except Exception as e:
+        print(f"Error fetching assessments: {e}")
+        return []
 
 @router.get("/{event_id}")
 async def get_event(event_id: str):

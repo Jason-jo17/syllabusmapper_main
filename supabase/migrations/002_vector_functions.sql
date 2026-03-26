@@ -2,20 +2,24 @@
 CREATE OR REPLACE FUNCTION match_skill_nodes(
   query_embedding VECTOR(1024),
   match_threshold FLOAT DEFAULT 0.62,
-  match_count INT DEFAULT 20
+  match_count INT DEFAULT 20,
+  filter_domain TEXT DEFAULT NULL
 ) RETURNS TABLE(
   id UUID, level TEXT, level_num INTEGER, knowledge_set TEXT,
   concept TEXT, skill_description TEXT, job_role_id UUID,
-  tools TEXT, task_type TEXT, bloom_level INTEGER, similarity FLOAT
+  tools TEXT, task_type TEXT, bloom_level INTEGER, similarity FLOAT,
+  domain TEXT
 ) LANGUAGE plpgsql AS $$
 BEGIN
   RETURN QUERY
   SELECT sn.id, sn.level, sn.level_num, sn.knowledge_set,
     sn.concept, sn.skill_description, sn.job_role_id,
     sn.tools, sn.task_type, sn.bloom_level,
-    1 - (sn.embedding <=> query_embedding) AS similarity
+    1 - (sn.embedding <=> query_embedding) AS similarity,
+    sn.domain
   FROM skill_nodes sn
-  WHERE 1 - (sn.embedding <=> query_embedding) > match_threshold
+  WHERE (filter_domain IS NULL OR sn.domain = filter_domain)
+    AND 1 - (sn.embedding <=> query_embedding) > match_threshold
   ORDER BY sn.embedding <=> query_embedding
   LIMIT match_count;
 END; $$;

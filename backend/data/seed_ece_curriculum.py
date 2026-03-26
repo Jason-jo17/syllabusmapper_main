@@ -102,11 +102,12 @@ async def seed_ece_curriculum():
     # This might take a while for 150+ COs
     mapping_inserts = []
     for co in co_inserts:
-        # RPC to match_skill_nodes
+        # RPC to match_skill_nodes with domain filter to avoid cross-pollution
         matches = sb.rpc('match_skill_nodes', {
             'query_embedding': co['embedding'],
-            'match_threshold': 0.6,
-            'match_count': 3
+            'match_threshold': 0.5, # Lower threshold slightly for better coverage
+            'match_count': 3,
+            'filter_domain': 'Embedded systems'
         }).execute()
         
         for m in matches.data:
