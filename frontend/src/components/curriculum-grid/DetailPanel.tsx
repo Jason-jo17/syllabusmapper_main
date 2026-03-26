@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Target, LayoutGrid, Calendar } from "lucide-react";
+import Link from "next/link";
 import type { Course, CourseOutcome, SkillNode, Event, SkillAddressed } from "@/lib/types";
 
 interface Props {
@@ -191,9 +192,14 @@ export function DetailPanel({ course, cos, mappedSkills, allEvents = [], onClose
                       </div>
                       <h4 className="text-[11px] font-bold text-[var(--tx)] leading-tight mb-1">{ev.event_name}</h4>
                       <p className="text-[9px] text-[var(--tx3)] mb-2 line-clamp-1">{ev.organizing_body}</p>
-                      <div className="text-[9px] text-[var(--tx2)] font-mono bg-[var(--bg3)] p-1.5 rounded border border-[var(--bd)]">
+                      <div className="text-[9px] text-[var(--tx2)] font-mono bg-[var(--bg3)] p-1.5 rounded border border-[var(--bd)] mb-2">
                         Domain: {ev.knowledge_domain_1}
                       </div>
+                      <Link href={`/events/${ev.id}`} className="block">
+                        <button className="w-full py-1.5 bg-[var(--acc)] text-black text-[10px] font-bold rounded hover:bg-[var(--acc2)] transition-colors">
+                          Configure Assessment
+                        </button>
+                      </Link>
                     </div>
                   ))}
                 </div>

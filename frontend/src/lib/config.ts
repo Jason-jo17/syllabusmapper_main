@@ -6,6 +6,11 @@ if (sanitizedUrl.endsWith('/')) {
   sanitizedUrl = sanitizedUrl.slice(0, -1);
 }
 
+// Special case: If we're on the user's production domain, force https strictly.
+if (sanitizedUrl.includes('up.railway.app') && sanitizedUrl.startsWith('http:')) {
+  sanitizedUrl = sanitizedUrl.replace('http:', 'https:');
+}
+
 export const API_URL = (sanitizedUrl.includes('localhost') || sanitizedUrl.includes('127.0.0.1')) 
   ? (sanitizedUrl.startsWith('http') ? sanitizedUrl : `http://${sanitizedUrl}`)
   : (sanitizedUrl.startsWith('https') ? sanitizedUrl : (sanitizedUrl.startsWith('http') ? sanitizedUrl.replace('http://', 'https://') : `https://${sanitizedUrl}`));
