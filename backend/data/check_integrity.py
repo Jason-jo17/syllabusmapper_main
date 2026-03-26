@@ -22,10 +22,27 @@ except Exception as e:
 
 # Check skill_assessments table
 try:
-    res = sb.table('skill_assessments').select('id').limit(1).execute()
-    print("✅ Table: 'skill_assessments' EXISTS.")
+    res = sb.table('skill_assessments').select('*').limit(1).execute()
+    if res.data:
+        print(f"✅ Table: 'skill_assessments' EXISTS. Columns: {list(res.data[0].keys())}")
+    else:
+        print("✅ Table: 'skill_assessments' EXISTS (but empty).")
+    
+    # Test Write
+    try:
+        print("Testing WRITE to skill_assessments...")
+        # Use a non-existent domain to be safe
+        res = sb.table('skill_assessments').insert({"domain": "integrity-check", "skill_knowledge": "test"}).execute()
+        print("✅ Table: 'skill_assessments' is WRITABLE!")
+        
+        # Test Delete
+        print("Testing DELETE from skill_assessments...")
+        res = sb.table('skill_assessments').delete().eq('domain', 'integrity-check').execute()
+        print("✅ Table: 'skill_assessments' is DELETABLE!")
+    except Exception as e:
+        print(f"❌ Table: 'skill_assessments' WRITE/DELETE FAIL: {e}")
 except Exception as e:
-    print(f"❌ Table: 'skill_assessments' MISSING.")
+    print(f"❌ Table: 'skill_assessments' MISSING or NOT READABLE: {e}")
 
 # Check events table RLS
 try:

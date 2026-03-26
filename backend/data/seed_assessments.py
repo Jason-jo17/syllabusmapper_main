@@ -25,13 +25,14 @@ async def seed_assessments():
     skill_nodes_res = sb.table('skill_nodes').select('id, domain, knowledge_set, skill_description').execute()
     skill_nodes = skill_nodes_res.data
     
-    # Create a lookup map: (domain, knowledge_set, skill_description) -> id
+    # Create a lookup map: (domain, cleaned_skill_description) -> id
     node_map = {}
     for sn in skill_nodes:
+        # Strip Bloom Level suffix if present (e.g., " - BL3")
+        sk_desc = str(sn['skill_description']).split(' - BL')[0].lower().strip()
         key_tuple = (
             str(sn['domain']).lower().strip(),
-            str(sn['knowledge_set']).lower().strip(),
-            str(sn['skill_description']).lower().strip()
+            sk_desc
         )
         node_map[key_tuple] = sn['id']
 
@@ -53,9 +54,15 @@ async def seed_assessments():
                 
                 # Try to find matching node
                 node_id = None
-                if domain and ks and sk:
-                    match_key = (domain.lower(), ks.lower(), sk.lower())
+                if domain and sk:
+                    # Strip BL suffix if CSV somehow has it too
+                    sk_clean = sk.split(' - BL')[0].lower().strip()
+                    match_key = (domain.lower().strip(), sk_clean)
                     node_id = node_map.get(match_key)
+                
+                if not node_id:
+                    print(f"  - Skipping (No node match): {sk}")
+                    continue
                 
                 # Extract MCQs (1-3)
                 mcqs = []
@@ -112,7 +119,7 @@ async def seed_assessments():
         return
 
     print(f"Clearing existing assessments...")
-    sb.table('skill_assessments').delete().neq('question', '').execute()
+    sb.table('skill_assessments').delete().neq('domain', '').execute()
 
     print(f"Inserting {len(all_inserts)} assessments...")
     for i in range(0, len(all_inserts), 100):
