@@ -1,6 +1,7 @@
 "use client";
 import { Moon, Sun, Link2, Link2Off } from "lucide-react";
 import { useEffect, useState } from "react";
+import { API_URL } from "@/lib/config";
 
 export function NavBar() {
   const [dark, setDark] = useState(true);
@@ -9,7 +10,7 @@ export function NavBar() {
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
     setDark(isDark);
-    setApiUrl(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
+    setApiUrl(API_URL);
   }, []);
 
   const toggleTheme = () => {
