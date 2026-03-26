@@ -28,7 +28,7 @@ async def get_all_courses():
         print(f"Error fetching all courses: {e}")
     return []
 
-@router.get("/{id}/cos/")
+@router.get("/{id}/cos")
 async def get_course_cos(id: str):
     load_dotenv()
     su = os.environ.get('SUPABASE_URL', '')
@@ -52,7 +52,7 @@ async def get_course_cos(id: str):
         print(f"Error fetching COs: {e}")
     return []
 
-@router.get("/{id}/skills/")
+@router.get("/{id}/skills")
 async def get_course_skills(id: str):
     load_dotenv()
     su = os.environ.get('SUPABASE_URL', '')

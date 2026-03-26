@@ -9,7 +9,7 @@ router = APIRouter()
 su = os.environ.get('SUPABASE_URL')
 sk = os.environ.get('SUPABASE_KEY')
 
-@router.get("/")
+@router.get("")
 async def get_all_events():
     if not su or not sk:
         return []

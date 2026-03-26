@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("")
 async def get_syllabi():
     load_dotenv()
     su = os.environ.get('SUPABASE_URL', '')
